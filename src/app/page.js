@@ -1,8 +1,32 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('search');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const performSearch = async (query) => {
+    try {
+      const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  useEffect(() => {
+    if (searchQuery.length > 2) {
+      performSearch(searchQuery);
+    }
+  }, [searchQuery]);
+
+  const handleSearchInput = (e) => {
+    setSearchQuery(e.target.value);
+  }
 
   return (
     <div className="flex flex-col font-sans h-screen">
@@ -22,7 +46,7 @@ export default function Home() {
           <p>Ange en tagg för att söka efter matchande bilder</p>
           <div>
             <label htmlFor="search-field">Sökfält:</label>
-            <input type="text" id="search-field" placeholder="Tagg..."></input>
+            <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Tagg..."></input>
           </div>
           <div>
             <ul id="image-list"></ul>
