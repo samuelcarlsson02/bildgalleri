@@ -1,26 +1,34 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('search');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const performSearch = async (query) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
       const data = await response.json();
       console.log(data);
+      setSearchResults(data.photos);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
     if (searchQuery.length > 2) {
       performSearch(searchQuery);
+    } else {
+      setSearchResults([]);
     }
   }, [searchQuery]);
 
@@ -42,14 +50,24 @@ export default function Home() {
 
       {activeTab === "search" && (
         <div className="flex flex-col">
-          <h2>Sök efter bilder här</h2>
-          <p>Ange en tagg för att söka efter matchande bilder</p>
-          <div>
-            <label htmlFor="search-field">Sökfält:</label>
-            <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Tagg..."></input>
+          <div className="flex flex-col items-center justify-center h-full m-4">
+            <h2 className="text-2xl font-bold mb-2 mt-6">Sök efter bilder</h2>
+            <p className="mb-4">Ange en söktagg för att söka efter bilder som matchar</p>
+            <div className="mb-6 w-full max-w-md">
+              <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Söktagg..." className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"></input>
+            </div>
           </div>
-          <div>
-            <ul id="image-list"></ul>
+
+          {isLoading && <p>Laddar...</p>}
+
+          <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
+            {searchResults.map((image) => (
+              <div key={image.id} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                <div className="h-full w-full max-h-100">
+                  <img src={image.src.large2x} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
