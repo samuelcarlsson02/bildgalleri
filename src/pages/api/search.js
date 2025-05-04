@@ -1,3 +1,4 @@
+// This API route handles search requests to the Pexels API
 export default async function search(req, res) {
     try {
         const query = req.query.query;
