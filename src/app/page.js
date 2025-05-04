@@ -1,5 +1,5 @@
 'use client';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   // Current active tab, either "search" or "gallery"
@@ -15,8 +15,11 @@ export default function Home() {
   useEffect(() => {
     const gallery = JSON.parse(localStorage.getItem("gallery")) || [];
     setGallery(gallery);
-    console.log(gallery);
   }, []);
+
+  useEffect(() => {
+    setSearchResults([]);
+  }, [activeTab])
 
   // Function to perform the search with the given query
   const performSearch = async (query) => {
@@ -63,19 +66,24 @@ export default function Home() {
     document.body.style.overflow = 'auto'; // Enables scrolling
   }
 
-  // Adds the selected image to the gallery
-  const addToGallery = () => {
-    // Checks if image already in gallery
-    const isDuplicate = gallery.some((image) => image.id === modalImage.id);
-    if (!isDuplicate) {
+  // Adds/removes the selected image to/from the gallery
+  const addOrRemoveImageGallery = () => {
+    if (isImageInGallery()) {
+      const updatedGallery = gallery.filter((image) => image.id !== modalImage.id);
+      setGallery(updatedGallery);
+      localStorage.setItem("gallery", JSON.stringify(updatedGallery));
+      // Closes the modal automatically only when removing an image from gallery
+      closeModal();
+    } else {
       const updatedGallery = [...gallery, modalImage];
       setGallery(updatedGallery);
       localStorage.setItem("gallery", JSON.stringify(updatedGallery));
-      alert("Bilden har lagts till i ditt galleri!");
-    } else {
-      alert("Bilden finns redan i ditt galleri!");
     }
-    closeModal();
+  }
+
+  // Checks if image already in gallery by using image id
+  const isImageInGallery = () => {
+    return gallery.some((image) => image.id === modalImage.id);
   }
 
   return (
@@ -119,14 +127,16 @@ export default function Home() {
 
       {/* Modal for displaying image */}
       {isModalOpen && modalImage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div onClick={() => closeModal()} className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-4 max-w-lg w-full">
             <h3 className="text-black mb-2">{modalImage.alt}</h3>
             <p className="text-black mb-2">Bild av: {modalImage.photographer}</p>
             <img src={modalImage.src.original} alt={modalImage.alt} className="w-full h-auto" />
             <div className="flex w-full justify-between items-center">
-              <button onClick={closeModal} className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 cursor-pointer">Stäng</button>
-              <button onClick={addToGallery} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">Lägg till i galleri</button>
+              <button onClick={closeModal} className="mt-4 px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300 cursor-pointer">Stäng</button>
+              <button onClick={addOrRemoveImageGallery} className={`mt-4 px-4 py-2 ${isImageInGallery() ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded cursor-pointer`}>
+                {isImageInGallery(modalImage.id) ? 'Ta bort från galleri' : 'Lägg till i galleri'}
+              </button>
             </div>
           </div>
         </div>
@@ -135,10 +145,19 @@ export default function Home() {
       {/* My gallery tab */}
       {activeTab === "gallery" && (
         <div className="flex flex-col">
-          <h2>Mitt galleri</h2>
-          <p>Här är dina sparade bilder</p>
-          <div>
-            <ul id="saved-image-list"></ul>
+          <div className="flex flex-col items-center justify-center h-full m-4">
+            <h2 className="text-2xl font-bold mb-2 mt-6">Mitt galleri</h2>
+            <p className="">Här är alla dina sparade bilder</p>
+          </div>
+
+          <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
+            {gallery.map((image) => (
+              <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                <div className="h-full w-full max-h-100">
+                  <img src={image.src.large2x} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
