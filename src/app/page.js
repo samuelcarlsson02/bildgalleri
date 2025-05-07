@@ -129,6 +129,18 @@ export default function Home() {
     alert(`${newImages.length} bilder har lagts till i ditt galleri!`);
   };
 
+  // Removes selected images from gallery
+  const removeSelectedFromGallery = () => {
+    const updatedGallery = gallery.filter((image) => !selectedImages.some(img => img.id === image.id));
+    setGallery(updatedGallery);
+    localStorage.setItem("gallery", JSON.stringify(updatedGallery));
+
+    // Reset selection
+    setSelectedImages([]);
+    setIsSelectionMode(false);
+    alert(`${selectedImages.length} bilder har tagits bort från ditt galleri!`);
+  }
+
   return (
     <div className="flex flex-col font-sans h-screen">
       {/* Header with title and navbar */}
@@ -217,13 +229,37 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center h-full m-4">
             <h2 className="text-2xl font-bold mb-2 mt-6">Mitt galleri</h2>
             <p className="">Här är alla dina sparade bilder</p>
+
+            {gallery.length > 0 && (
+              <div className="flex justify-between items-center w-full">
+                <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
+                  {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
+                </button>
+
+                {isSelectionMode && (
+                  <div>
+                    <span className="mr-2">{selectedImages.length} bilder valda</span>
+                    <button onClick={removeSelectedFromGallery} disabled={selectedImages.length === 0} className={`px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white ${selectedImages.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                      Ta bort från galleri
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
             {gallery.map((image) => (
               <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                <div className="h-full w-full max-h-100">
+                <div onClick={() => toggleImageSelection(image)} className="h-full w-full max-h-100 relative">
                   <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                  {isSelectionMode && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
+                      {selectedImages.some(img => img.id === image.id) && (
+                        <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
