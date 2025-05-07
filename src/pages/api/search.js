@@ -2,7 +2,7 @@
 export default async function search(req, res) {
     try {
         const query = req.query.query;
-        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}`, {
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${query}&per_page=40`, {
             method: "GET",
             headers: {
                 Authorization: process.env.PEXELS_API_KEY,
