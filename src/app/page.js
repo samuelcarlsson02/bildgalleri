@@ -13,6 +13,7 @@ export default function Home() {
   const [gallery, setGallery] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
   // Loads the gallery from local storage when the page loads
   useEffect(() => {
@@ -34,6 +35,14 @@ export default function Home() {
     }
   }, [isModalOpen]);
 
+  // Debounces the search query to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500); // 500ms debounce time
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Function to perform the search with the given query
   const performSearch = async (query) => {
     try {
@@ -51,14 +60,17 @@ export default function Home() {
     }
   }
 
-  // useEffect to perform the search when the search query changes and is longer than two characters
+  // useEffect to perform the search when the debounced search query changes and is longer than two characters
   useEffect(() => {
-    if (searchQuery.length > 2) {
-      performSearch(searchQuery);
+    if (debouncedQuery.length > 2) {
+      setSearchResults([]);
+      setSelectedImages([]);
+      setIsSelectionMode(false);
+      performSearch(debouncedQuery);
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery]);
+  }, [debouncedQuery]);
 
   // Function to handle the search input change
   const handleSearchInput = (e) => {
@@ -152,13 +164,13 @@ export default function Home() {
   return (
     <div className="flex flex-col font-sans h-screen max-w-screen-xl mx-auto">
       {/* Header with title and navbar */}
-      <div className="flex md:flex-row flex-col gap-2 justify-between items-center h-20 bg-gray-600 w-full border-b-2 border-white rounded-lg shadow-lg">
+      <div className="flex md:flex-row flex-col gap-2 justify-between items-center h-20 bg-gray-600 w-full border-b-2 border-black dark:border-white rounded-bl-lg rounded-br-lg shadow-lg text-white">
         <header>
           <h1 className="font-mono text-3xl font-bold pl-4 cursor-default">Bildgalleri</h1>
         </header>
         <nav className="flex md:flex-row h-full text-lg">
           <a onClick={() => setActiveTab("search")} className={`flex items-center px-4 cursor-pointer ${activeTab === "search" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Sök</a>
-          <a onClick={() => setActiveTab("gallery")} className={`flex items-center px-4 cursor-pointer rounded-br-lg rounded-tr-lg ${activeTab === "gallery" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Mitt galleri</a>
+          <a onClick={() => setActiveTab("gallery")} className={`flex items-center px-4 cursor-pointer rounded-br-lg ${activeTab === "gallery" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Mitt galleri</a>
         </nav>
       </div>
 
@@ -281,6 +293,7 @@ export default function Home() {
               <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
                 <div onClick={() => toggleImageSelection(image)} className="h-75 w-full relative">
                   <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                  {/* Adds a selection indicator if in selection mode */}
                   {isSelectionMode && (
                     <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
                       {selectedImages.some(img => img.id === image.id) && (
