@@ -26,6 +26,7 @@ export default function Home() {
     setSearchResults([]);
     setSelectedImages([]);
     setIsSelectionMode(false);
+    setSearchQuery('');
   }, [activeTab])
 
   // Sets the loading state for the image when the modal is opened
@@ -38,6 +39,9 @@ export default function Home() {
   // Debounces the search query to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
+      if (searchQuery.length > 2) {
+        setIsLoading(true);
+      }
       setDebouncedQuery(searchQuery);
     }, 500); // 500ms debounce time
     return () => clearTimeout(timer);
@@ -46,7 +50,6 @@ export default function Home() {
   // Function to perform the search with the given query
   const performSearch = async (query) => {
     try {
-      setIsLoading(true);
       const response = await fetch(`/api/search?query=${encodeURIComponent(query)}`);
       if (!response.ok) {
         throw new Error(`API returned ${response.status}: ${response.statusText}`);
@@ -55,6 +58,7 @@ export default function Home() {
       setSearchResults(data.photos);
     } catch (error) {
       console.error('Error fetching data:', error);
+      alert("Ett fel inträffade vid hämtning av bilder. Vänligen försök igen senare.");
     } finally {
       setIsLoading(false);
     }
@@ -203,6 +207,12 @@ export default function Home() {
             )}
           </div>
 
+          {debouncedQuery.length > 2 && searchResults.length === 0 && !isLoading && (
+            <div className="flex items-center justify-center my-8">
+              <p className="text-gray-600 text-3xl">Inga bilder hittades...</p>
+            </div>
+          )}
+
           {/* Loading while searching */}
           {isLoading && (
             <div className="flex items-center justify-center my-8">
@@ -270,7 +280,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold mb-2 mt-6">Mitt galleri</h2>
             <p className="mb-4">Här är alla dina sparade bilder</p>
 
-            {gallery.length > 0 && (
+            {gallery.length > 0 ? (
               <div className="flex justify-between items-center w-full">
                 <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
                   {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
@@ -284,6 +294,10 @@ export default function Home() {
                     </button>
                   </div>
                 )}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center my-8">
+                <p className="text-gray-600 text-3xl">Inga bilder är sparade till ditt galleri...</p>
               </div>
             )}
           </div>
