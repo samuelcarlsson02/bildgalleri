@@ -166,166 +166,171 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col font-sans h-screen max-w-screen-xl mx-auto">
+    <div className="flex flex-col font-sans h-screen">
       {/* Header with title and navbar */}
-      <div className="flex md:flex-row flex-col gap-2 justify-between items-center h-20 bg-gray-600 w-full border-b-2 border-black dark:border-white rounded-bl-lg rounded-br-lg shadow-lg text-white">
-        <header>
-          <h1 className="font-mono text-3xl font-bold pl-4 cursor-default">Bildgalleri</h1>
-        </header>
-        <nav className="flex md:flex-row h-full text-lg">
-          <a onClick={() => setActiveTab("search")} className={`flex items-center px-4 cursor-pointer ${activeTab === "search" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Sök</a>
-          <a onClick={() => setActiveTab("gallery")} className={`flex items-center px-4 cursor-pointer rounded-br-lg ${activeTab === "gallery" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Mitt galleri</a>
-        </nav>
+      <div className="h-20 bg-gray-600 w-full border-b-2 border-black dark:border-white shadow-lg text-white">
+        <div className="flex md:flex-row flex-col gap-2 justify-between items-center h-full max-w-screen-xl mx-auto">
+          <header>
+            <h1 className="font-mono text-3xl font-bold pl-4 cursor-default">Bildgalleri</h1>
+          </header>
+          <nav className="flex md:flex-row h-full text-lg">
+            <a onClick={() => setActiveTab("search")} className={`flex items-center px-4 cursor-pointer ${activeTab === "search" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Sök</a>
+            <a onClick={() => setActiveTab("gallery")} className={`flex items-center px-4 cursor-pointer ${activeTab === "gallery" ? "bg-gray-900" : "bg-gray-600 hover:bg-gray-800"}`}>Mitt galleri</a>
+          </nav>
+        </div>
       </div>
 
-      {/* Search tab */}
-      {activeTab === "search" && (
-        <div className="flex flex-col">
-          <div className="flex flex-col items-center justify-center h-full m-4">
-            <h2 className="text-2xl font-bold mb-2 mt-6">Sök efter bilder</h2>
-            <p className="mb-4">Ange en söktagg för att söka efter bilder som matchar</p>
-            <div className="mb-6 w-full max-w-md">
-              <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Söktagg..." className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"></input>
-            </div>
-
-            {/* Ability to select multiple images */}
-            {searchResults.length > 0 && (
-              <div className="flex justify-between items-center w-full">
-                <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
-                  {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
-                </button>
-
-                {isSelectionMode && (
-                  <div>
-                    <span className="mr-2">{selectedImages.length} bilder valda</span>
-                    <button onClick={addSelectedToGallery} disabled={selectedImages.length === 0} className={`px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white ${selectedImages.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                      Lägg till i galleri
-                    </button>
-                  </div>
-                )}
+      {/* Main content area */}
+      <div className="flex flex-col h-full max-w-screen-xl mx-auto">
+        {/* Search tab */}
+        {activeTab === "search" && (
+          <div className="flex flex-col">
+            <div className="flex flex-col items-center justify-center h-full m-4">
+              <h2 className="text-2xl font-bold mb-2 mt-6">Sök efter bilder</h2>
+              <p className="mb-4">Ange en söktagg för att söka efter bilder som matchar</p>
+              <div className="mb-6 w-full max-w-md">
+                <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Söktagg..." className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"></input>
               </div>
-            )}
-          </div>
 
-          {debouncedQuery.length > 2 && searchResults.length === 0 && !isLoading && (
-            <div className="flex items-center justify-center my-8">
-              <p className="text-gray-600 text-3xl">Inga bilder hittades...</p>
-            </div>
-          )}
+              {/* Ability to select multiple images */}
+              {searchResults.length > 0 && (
+                <div className="flex justify-between items-center w-full">
+                  <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
+                    {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
+                  </button>
 
-          {/* Loading while searching */}
-          {isLoading && (
-            <div className="flex items-center justify-center my-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
-            </div>
-          )}
-
-          <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
-            {searchResults.map((image) => (
-              <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                <div onClick={() => toggleImageSelection(image)} className="h-75 w-full relative">
-                  <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
-                  {/* Adds a selection indicator if in selection mode */}
                   {isSelectionMode && (
-                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
-                      {selectedImages.some(img => img.id === image.id) && (
-                        <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      )}
+                    <div>
+                      <span className="mr-2">{selectedImages.length} bilder valda</span>
+                      <button onClick={addSelectedToGallery} disabled={selectedImages.length === 0} className={`px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white ${selectedImages.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                        Lägg till i galleri
+                      </button>
                     </div>
                   )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Modal for displaying image */}
-      {isModalOpen && modalImage && (
-        <div onClick={() => closeModal()} className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
-          <div className="bg-white rounded-lg p-4 m-4 max-w-[90vw] max-h-[90vh] flex flex-col">
-            {/* Header section */}
-            <div className="flex justify-between items-center mb-3">
-              <div className="overflow-hidden">
-                <h3 className="text-black font-medium text-lg">{modalImage.alt}</h3>
-                <p className="text-gray-600 text-sm">Bild av: {modalImage.photographer}</p>
-              </div>
-            </div>
-
-            {/* Image container */}
-            <div className="flex-grow flex items-center justify-center overflow-hidden">
-              {isImageLoading && (
-                <div className="flex items-center justify-center my-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
                 </div>
               )}
-              <img src={modalImage.src.original} alt={modalImage.alt} className={`max-w-full max-h-[70vh] object-contain ${isImageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`} onLoad={() => setIsImageLoading(false)} />
             </div>
 
-            {/* Button section */}
-            <div className="flex justify-between items-center mt-3">
-              <button onClick={closeModal} className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300 transition-colors cursor-pointer">Stäng</button>
-              <button onClick={addOrRemoveImageGallery} className={`px-4 py-2 ${isImageInGallery() ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded transition-colors cursor-pointer`}>
-                {isImageInGallery() ? 'Ta bort från galleri' : 'Lägg till i galleri'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* My gallery tab */}
-      {activeTab === "gallery" && (
-        <div className="flex flex-col">
-          <div className="flex flex-col items-center justify-center h-full m-4">
-            <h2 className="text-2xl font-bold mb-2 mt-6">Mitt galleri</h2>
-            <p className="mb-4">Här är alla dina sparade bilder</p>
-
-            {gallery.length > 0 ? (
-              <div className="flex justify-between items-center w-full">
-                <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
-                  {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
-                </button>
-
-                {isSelectionMode && (
-                  <div>
-                    <span className="mr-2">{selectedImages.length} bilder valda</span>
-                    <button onClick={removeSelectedFromGallery} disabled={selectedImages.length === 0} className={`px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white ${selectedImages.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                      Ta bort från galleri
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
+            {debouncedQuery.length > 2 && searchResults.length === 0 && !isLoading && (
               <div className="flex items-center justify-center my-8">
-                <p className="text-gray-600 text-3xl">Inga bilder är sparade till ditt galleri...</p>
+                <p className="text-gray-600 text-3xl">Inga bilder hittades...</p>
               </div>
             )}
-          </div>
 
-          <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
-            {gallery.map((image) => (
-              <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
-                <div onClick={() => toggleImageSelection(image)} className="h-75 w-full relative">
-                  <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
-                  {/* Adds a selection indicator if in selection mode */}
+            {/* Loading while searching */}
+            {isLoading && (
+              <div className="flex items-center justify-center my-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+              </div>
+            )}
+
+            <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
+              {searchResults.map((image) => (
+                <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                  <div onClick={() => toggleImageSelection(image)} className="h-75 w-full relative">
+                    <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                    {/* Adds a selection indicator if in selection mode */}
+                    {isSelectionMode && (
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
+                        {selectedImages.some(img => img.id === image.id) && (
+                          <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Modal for displaying image */}
+        {isModalOpen && modalImage && (
+          <div onClick={() => closeModal()} className="fixed inset-0 flex items-center justify-center bg-black/80 z-50">
+            <div className="bg-white rounded-lg p-4 m-4 max-w-[90vw] max-h-[90vh] flex flex-col">
+              {/* Header section */}
+              <div className="flex justify-between items-center mb-3">
+                <div className="overflow-hidden">
+                  <h3 className="text-black font-medium text-lg">{modalImage.alt}</h3>
+                  <p className="text-gray-600 text-sm">Bild av: {modalImage.photographer}</p>
+                </div>
+              </div>
+
+              {/* Image container */}
+              <div className="flex-grow flex items-center justify-center overflow-hidden">
+                {isImageLoading && (
+                  <div className="flex items-center justify-center my-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+                  </div>
+                )}
+                <img src={modalImage.src.original} alt={modalImage.alt} className={`max-w-full max-h-[70vh] object-contain ${isImageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`} onLoad={() => setIsImageLoading(false)} />
+              </div>
+
+              {/* Button section */}
+              <div className="flex justify-between items-center mt-3">
+                <button onClick={closeModal} className="px-4 py-2 bg-gray-200 text-black rounded hover:bg-gray-300 transition-colors cursor-pointer">Stäng</button>
+                <button onClick={addOrRemoveImageGallery} className={`px-4 py-2 ${isImageInGallery() ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded transition-colors cursor-pointer`}>
+                  {isImageInGallery() ? 'Ta bort från galleri' : 'Lägg till i galleri'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* My gallery tab */}
+        {activeTab === "gallery" && (
+          <div className="flex flex-col">
+            <div className="flex flex-col items-center justify-center h-full m-4">
+              <h2 className="text-2xl font-bold mb-2 mt-6">Mitt galleri</h2>
+              <p className="mb-4">Här är alla dina sparade bilder</p>
+
+              {gallery.length > 0 ? (
+                <div className="flex justify-between items-center w-full">
+                  <button onClick={toggleSelectionMode} className={`px-4 py-2 rounded ${isSelectionMode ? 'bg-red-500 hover:bg-red-600' : 'bg-gray-300 text-black hover:bg-gray-400'} cursor-pointer`}>
+                    {isSelectionMode ? 'Avbryt val' : 'Välj flera bilder'}
+                  </button>
+
                   {isSelectionMode && (
-                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
-                      {selectedImages.some(img => img.id === image.id) && (
-                        <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                      )}
+                    <div>
+                      <span className="mr-2">{selectedImages.length} bilder valda</span>
+                      <button onClick={removeSelectedFromGallery} disabled={selectedImages.length === 0} className={`px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white ${selectedImages.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                        Ta bort från galleri
+                      </button>
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ) : (
+                <div className="flex items-center justify-center my-8">
+                  <p className="text-gray-600 text-3xl">Inga bilder är sparade till ditt galleri...</p>
+                </div>
+              )}
+            </div>
 
-      {/* Footer with Pexels credit */}
-      <footer className="mt-auto py-4 text-center w-full">
-        Bilderna är från <a href="https://www.pexels.com" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">Pexels</a>
-      </footer>
+            <div className="image-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 m-4">
+              {gallery.map((image) => (
+                <div key={image.id} onClick={() => openModal(image)} className="image-card border rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-pointer">
+                  <div onClick={() => toggleImageSelection(image)} className="h-75 w-full relative">
+                    <img src={image.src.large} alt={image.alt} className="object-cover h-full w-full transition-all duration-300" />
+                    {/* Adds a selection indicator if in selection mode */}
+                    {isSelectionMode && (
+                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white flex items-center justify-center bg-white cursor-pointer">
+                        {selectedImages.some(img => img.id === image.id) && (
+                          <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Footer with Pexels credit */}
+        <footer className="mt-auto py-4 text-center w-full">
+          Bilderna är från <a href="https://www.pexels.com" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">Pexels</a>
+        </footer>
+      </div>
     </div>
   );
 }
