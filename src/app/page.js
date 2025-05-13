@@ -97,7 +97,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold mb-2 mt-6">Sök efter bilder</h2>
               <p className="mb-4">Ange en söktagg för att söka efter bilder som matchar</p>
               <div className="mb-6 w-full max-w-md">
-                <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Söktagg..." className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"></input>
+                <input onChange={handleSearchInput} type="text" id="search-field" placeholder="Söktagg... (minst tre tecken)" className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"></input>
               </div>
 
               {/* Ability to select multiple images */}
