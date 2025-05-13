@@ -6,13 +6,13 @@ import { Header } from '../components/Header';
 import { useEffect, useState } from 'react';
 import { useGallery } from '../hooks/useGallery';
 
+// Main component for the home page
 export default function Home() {
-  // Current active tab, either "search" or "gallery"
-  const [activeTab, setActiveTab] = useState("search");
+  const [activeTab, setActiveTab] = useState("search"); // Current active tab, either "search" or "gallery"
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState(''); // Debounced search query to avoid too many API calls
 
   // Custom hook to manage everything related to the gallery
   const {

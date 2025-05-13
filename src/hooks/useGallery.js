@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 
+// Custom hook to manage everything related to the gallery
 export function useGallery() {
     const [modalImage, setModalImage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
