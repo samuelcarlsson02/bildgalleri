@@ -33,13 +33,15 @@ export function useGallery() {
     }
 
     // Adds/removes the selected image to/from the gallery
-    const addOrRemoveImageGallery = () => {
+    const addOrRemoveImageGallery = (activeTab) => {
         if (isImageInGallery()) {
             const updatedGallery = gallery.filter((image) => image.id !== modalImage.id);
             setGallery(updatedGallery);
             localStorage.setItem("gallery", JSON.stringify(updatedGallery));
-            // Closes the modal automatically only when removing an image from gallery
-            closeModal();
+            // Closes the modal automatically only when removing an image from gallery in the gallery tab
+            if (activeTab === "gallery") {
+                closeModal();
+            }
         } else {
             const updatedGallery = [...gallery, modalImage];
             setGallery(updatedGallery);

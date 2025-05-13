@@ -143,7 +143,7 @@ export default function Home() {
           image={modalImage}
           isOpen={isModalOpen}
           onClose={closeModal}
-          addOrRemoveImageGallery={addOrRemoveImageGallery}
+          addOrRemoveImageGallery={() => addOrRemoveImageGallery(activeTab)}
           isInGallery={modalImage ? isImageInGallery() : false}
         />
 
